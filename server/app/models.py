@@ -8,6 +8,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -29,6 +30,9 @@ class User(Base):
     vehicles: Mapped[list["Vehicle"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    vehicle_memberships: Mapped[list["VehicleMember"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Vehicle(Base):
@@ -46,6 +50,9 @@ class Vehicle(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     user: Mapped["User"] = relationship(back_populates="vehicles")
+    members: Mapped[list["VehicleMember"]] = relationship(
+        back_populates="vehicle", cascade="all, delete-orphan"
+    )
     fillups: Mapped[list["FillupRecord"]] = relationship(
         back_populates="vehicle", cascade="all, delete-orphan"
     )
@@ -55,6 +62,26 @@ class Vehicle(Base):
     reminder_rules: Mapped[list["ReminderRule"]] = relationship(
         back_populates="vehicle", cascade="all, delete-orphan"
     )
+
+
+class VehicleMember(Base):
+    __tablename__ = "vehicle_members"
+    __table_args__ = (
+        UniqueConstraint("vehicle_id", "user_id", name="uq_vehicle_member"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    vehicle_id: Mapped[int] = mapped_column(
+        ForeignKey("vehicles.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    role: Mapped[str] = mapped_column(String(40), nullable=False, default="editor")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="members")
+    user: Mapped["User"] = relationship(back_populates="vehicle_memberships")
 
 
 class FillupRecord(Base):

@@ -60,6 +60,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: _VehicleSelector(vehicles: vehicles, selected: vehicle),
             actions: [
               IconButton(
+                tooltip: 'Share vehicle',
+                icon: const Icon(Icons.share),
+                onPressed: () async {
+                  await showDialog<bool>(
+                    context: context,
+                    builder: (_) => _ShareVehicleDialog(vehicle: vehicle),
+                  );
+                },
+              ),
+              IconButton(
                 tooltip: 'Add vehicle',
                 icon: const Icon(Icons.add),
                 onPressed: () async {
@@ -93,6 +103,91 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class _ShareVehicleDialog extends ConsumerStatefulWidget {
+  const _ShareVehicleDialog({required this.vehicle});
+
+  final Vehicle vehicle;
+
+  @override
+  ConsumerState<_ShareVehicleDialog> createState() => _ShareVehicleDialogState();
+}
+
+class _ShareVehicleDialogState extends ConsumerState<_ShareVehicleDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _share() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+
+    try {
+      await ref.read(apiProvider).shareVehicle(widget.vehicle.id, _emailController.text);
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Shared ${widget.vehicle.label} with ${_emailController.text.trim()}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Share ${widget.vehicle.label}'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Invite a partner by email to edit this vehicle together.'),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Partner email',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                final text = value?.trim() ?? '';
+                if (text.isEmpty || !text.contains('@')) {
+                  return 'Enter a valid email';
+                }
+                return null;
+              },
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: _saving ? null : () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        FilledButton(onPressed: _saving ? null : _share, child: _saving ? const SizedBox(height: 18,width:18,child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Share')),
+      ],
     );
   }
 }

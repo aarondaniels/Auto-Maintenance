@@ -37,6 +37,30 @@ class Vehicle {
   }
 }
 
+class VehicleMember {
+  final int id;
+  final int vehicleId;
+  final int userId;
+  final String role;
+  final DateTime createdAt;
+
+  VehicleMember({
+    required this.id,
+    required this.vehicleId,
+    required this.userId,
+    required this.role,
+    required this.createdAt,
+  });
+
+  factory VehicleMember.fromJson(Map<String, dynamic> j) => VehicleMember(
+        id: j['id'] as int,
+        vehicleId: j['vehicle_id'] as int,
+        userId: j['user_id'] as int,
+        role: j['role'] as String,
+        createdAt: DateTime.parse(j['created_at'] as String),
+      );
+}
+
 class Fillup {
   final int id;
   final DateTime date;

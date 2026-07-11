@@ -2,8 +2,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from sqlalchemy import select
+
 from .database import get_db
-from .models import User, Vehicle
+from .models import User, Vehicle, VehicleMember
 from .security import decode_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -33,6 +35,19 @@ def get_owned_vehicle(
     user: User = Depends(get_current_user),
 ) -> Vehicle:
     vehicle = db.get(Vehicle, vehicle_id)
-    if vehicle is None or vehicle.user_id != user.id:
+    if vehicle is None:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+
+    is_owner = vehicle.user_id == user.id
+    is_member = (
+        db.scalar(
+            select(VehicleMember).where(
+                VehicleMember.vehicle_id == vehicle.id,
+                VehicleMember.user_id == user.id,
+            )
+        )
+        is not None
+    )
+    if not (is_owner or is_member):
         raise HTTPException(status_code=404, detail="Vehicle not found")
     return vehicle

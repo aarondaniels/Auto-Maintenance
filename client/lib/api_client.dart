@@ -104,6 +104,28 @@ class ApiClient {
     }
   }
 
+  Future<void> shareVehicle(int vehicleId, String email) async {
+    try {
+      await _dio.post('/vehicles/$vehicleId/members', data: {
+        'email': email.trim(),
+        'role': 'editor',
+      });
+    } catch (e) {
+      throw ApiException(_friendlyError(e));
+    }
+  }
+
+  Future<List<VehicleMember>> listVehicleMembers(int vehicleId) async {
+    try {
+      final res = await _dio.get('/vehicles/$vehicleId/members');
+      return (res.data as List)
+          .map((e) => VehicleMember.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw ApiException(_friendlyError(e));
+    }
+  }
+
   // ---- fillups ----
   Future<List<Fillup>> listFillups(int vehicleId) async {
     try {

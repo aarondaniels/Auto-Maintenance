@@ -39,6 +39,24 @@ class VehicleCreate(VehicleBase):
     pass
 
 
+class VehicleMemberBase(BaseModel):
+    email: EmailStr
+    role: str = "editor"
+
+
+class VehicleMemberCreate(VehicleMemberBase):
+    pass
+
+
+class VehicleMemberOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    vehicle_id: int
+    user_id: int
+    role: str
+    created_at: datetime
+
+
 class VehicleUpdate(BaseModel):
     label: str | None = None
     make: str | None = None
