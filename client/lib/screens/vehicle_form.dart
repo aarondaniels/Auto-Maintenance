@@ -17,6 +17,8 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
   final _make = TextEditingController();
   final _model = TextEditingController();
   final _year = TextEditingController();
+  final _trim = TextEditingController();
+  final _engine = TextEditingController();
   final _odometer = TextEditingController();
   bool _saving = false;
   String? _error;
@@ -27,6 +29,8 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
     _make.dispose();
     _model.dispose();
     _year.dispose();
+    _trim.dispose();
+    _engine.dispose();
     _odometer.dispose();
     super.dispose();
   }
@@ -43,6 +47,8 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
         if (_make.text.trim().isNotEmpty) 'make': _make.text.trim(),
         if (_model.text.trim().isNotEmpty) 'model': _model.text.trim(),
         if (_year.text.trim().isNotEmpty) 'year': int.tryParse(_year.text.trim()),
+        if (_trim.text.trim().isNotEmpty) 'trim': _trim.text.trim(),
+        if (_engine.text.trim().isNotEmpty) 'engine': _engine.text.trim(),
         if (_odometer.text.trim().isNotEmpty)
           'current_odometer': int.tryParse(_odometer.text.trim()),
       });
@@ -90,6 +96,22 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                   labelText: 'Year', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _trim,
+              decoration: const InputDecoration(
+                labelText: 'Trim (optional, e.g. Badlands)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _engine,
+              decoration: const InputDecoration(
+                labelText: 'Engine (optional, e.g. 2.7L V6)',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextFormField(

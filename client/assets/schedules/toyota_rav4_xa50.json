@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "make": "toyota",
+  "model": "rav4",
+  "generation": "XA50",
+  "years": [2019, 2025],
+  "conditions": "normal",
+  "source": "Toyota RAV4 Warranty & Maintenance Guide (normal conditions)",
+  "variants": [
+    {
+      "match": {},
+      "recurring": [
+        {"service_type": "oil change", "interval_miles": 10000, "interval_months": 12},
+        {"service_type": "tire rotation", "interval_miles": 5000, "interval_months": 6},
+        {"service_type": "engine air filter", "interval_miles": 30000},
+        {"service_type": "cabin air filter", "interval_miles": 30000}
+      ],
+      "milestones": [
+        {"service_type": "spark plugs", "odometer": 120000},
+        {"service_type": "engine coolant", "odometer": 100000}
+      ]
+    }
+  ]
+}

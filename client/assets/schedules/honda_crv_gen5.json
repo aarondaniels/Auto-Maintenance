@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "make": "honda",
+  "model": "cr-v",
+  "generation": "5th gen",
+  "years": [2017, 2022],
+  "conditions": "normal",
+  "source": "Honda CR-V Owner's Manual, Maintenance Minder equivalents (normal conditions)",
+  "variants": [
+    {
+      "match": {},
+      "recurring": [
+        {"service_type": "oil change", "interval_miles": 7500, "interval_months": 12},
+        {"service_type": "tire rotation", "interval_miles": 7500},
+        {"service_type": "engine air filter", "interval_miles": 30000},
+        {"service_type": "cabin air filter", "interval_miles": 30000}
+      ],
+      "milestones": [
+        {"service_type": "spark plugs", "odometer": 105000},
+        {"service_type": "engine coolant", "odometer": 100000},
+        {"service_type": "transmission fluid", "odometer": 90000}
+      ]
+    }
+  ]
+}

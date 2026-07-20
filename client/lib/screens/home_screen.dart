@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models.dart';
 import '../providers.dart';
@@ -19,14 +20,25 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _tab = 0;
 
+  Future<void> _exportData(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final file = await ref.read(apiProvider).writeExportFile();
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path, mimeType: 'application/json')]),
+      );
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final vehiclesAsync = ref.watch(vehiclesProvider);
 
     return vehiclesAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Auto Maintenance')),
         body: _ErrorView(
@@ -60,14 +72,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: _VehicleSelector(vehicles: vehicles, selected: vehicle),
             actions: [
               IconButton(
-                tooltip: 'Share vehicle',
-                icon: const Icon(Icons.share),
-                onPressed: () async {
-                  await showDialog<bool>(
-                    context: context,
-                    builder: (_) => _ShareVehicleDialog(vehicle: vehicle),
-                  );
-                },
+                tooltip: 'Export data',
+                icon: const Icon(Icons.ios_share),
+                onPressed: () => _exportData(context),
               ),
               IconButton(
                 tooltip: 'Add vehicle',
@@ -79,11 +86,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   if (added == true) ref.invalidate(vehiclesProvider);
                 },
               ),
-              IconButton(
-                tooltip: 'Log out',
-                icon: const Icon(Icons.logout),
-                onPressed: () => ref.read(authProvider.notifier).logout(),
-              ),
             ],
           ),
           body: pages[_tab],
@@ -92,102 +94,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onDestinationSelected: (i) => setState(() => _tab = i),
             destinations: const [
               NavigationDestination(
-                  icon: Icon(Icons.local_gas_station), label: 'Fillups'),
+                icon: Icon(Icons.local_gas_station),
+                label: 'Fillups',
+              ),
+              NavigationDestination(icon: Icon(Icons.build), label: 'Service'),
               NavigationDestination(
-                  icon: Icon(Icons.build), label: 'Service'),
-              NavigationDestination(
-                  icon: Icon(Icons.notifications), label: 'Reminders'),
-              NavigationDestination(
-                  icon: Icon(Icons.insights), label: 'Stats'),
+                icon: Icon(Icons.notifications),
+                label: 'Reminders',
+              ),
+              NavigationDestination(icon: Icon(Icons.insights), label: 'Stats'),
             ],
           ),
         );
       },
-    );
-  }
-}
-
-class _ShareVehicleDialog extends ConsumerStatefulWidget {
-  const _ShareVehicleDialog({required this.vehicle});
-
-  final Vehicle vehicle;
-
-  @override
-  ConsumerState<_ShareVehicleDialog> createState() => _ShareVehicleDialogState();
-}
-
-class _ShareVehicleDialogState extends ConsumerState<_ShareVehicleDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  bool _saving = false;
-  String? _error;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _share() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _saving = true;
-      _error = null;
-    });
-
-    try {
-      await ref.read(apiProvider).shareVehicle(widget.vehicle.id, _emailController.text);
-      if (!mounted) return;
-      Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Shared ${widget.vehicle.label} with ${_emailController.text.trim()}')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _error = e.toString());
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Share ${widget.vehicle.label}'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Invite a partner by email to edit this vehicle together.'),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Partner email',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                final text = value?.trim() ?? '';
-                if (text.isEmpty || !text.contains('@')) {
-                  return 'Enter a valid email';
-                }
-                return null;
-              },
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(onPressed: _saving ? null : () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(onPressed: _saving ? null : _share, child: _saving ? const SizedBox(height: 18,width:18,child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Share')),
-      ],
     );
   }
 }
@@ -205,10 +124,12 @@ class _VehicleSelector extends ConsumerWidget {
         value: selected.id,
         isExpanded: true,
         items: vehicles
-            .map((v) => DropdownMenuItem(
-                  value: v.id,
-                  child: Text(v.displayName, overflow: TextOverflow.ellipsis),
-                ))
+            .map(
+              (v) => DropdownMenuItem(
+                value: v.id,
+                child: Text(v.displayName, overflow: TextOverflow.ellipsis),
+              ),
+            )
             .toList(),
         onChanged: (id) =>
             ref.read(selectedVehicleIdProvider.notifier).select(id),

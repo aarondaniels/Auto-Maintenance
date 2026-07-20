@@ -7,16 +7,6 @@ import '../providers.dart';
 
 final _dateFmt = DateFormat('MMM d, yyyy');
 
-const _serviceTypes = [
-  'oil change',
-  'tires',
-  'brakes',
-  'filters',
-  'battery',
-  'inspection',
-  'other',
-];
-
 class ServicesScreen extends ConsumerWidget {
   const ServicesScreen({super.key, required this.vehicle});
   final Vehicle vehicle;
@@ -111,7 +101,7 @@ class _AddServiceSheet extends ConsumerStatefulWidget {
 class _AddServiceSheetState extends ConsumerState<_AddServiceSheet> {
   final _formKey = GlobalKey<FormState>();
   DateTime _date = DateTime.now();
-  String _type = _serviceTypes.first;
+  String _type = serviceTypes.first;
   final _odometer = TextEditingController();
   final _cost = TextEditingController();
   final _notes = TextEditingController();
@@ -170,15 +160,26 @@ class _AddServiceSheetState extends ConsumerState<_AddServiceSheet> {
           children: [
             Text('Add service', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _type,
-              decoration: const InputDecoration(
-                  labelText: 'Service type', border: OutlineInputBorder()),
-              items: _serviceTypes
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                  .toList(),
-              onChanged: (v) => setState(() => _type = v ?? _type),
-            ),
+            Builder(builder: (context) {
+              // Offer the standard types plus any types this vehicle's
+              // reminder rules use (e.g. imported manufacturer items).
+              final ruleTypes =
+                  ref
+                      .watch(reminderRulesProvider(widget.vehicle.id))
+                      .value
+                      ?.map((r) => r.serviceType.toLowerCase()) ??
+                  const Iterable<String>.empty();
+              final types = {...serviceTypes, ...ruleTypes}.toList();
+              return DropdownButtonFormField<String>(
+                initialValue: _type,
+                decoration: const InputDecoration(
+                    labelText: 'Service type', border: OutlineInputBorder()),
+                items: types
+                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                    .toList(),
+                onChanged: (v) => setState(() => _type = v ?? _type),
+              );
+            }),
             const SizedBox(height: 12),
             ListTile(
               contentPadding: EdgeInsets.zero,

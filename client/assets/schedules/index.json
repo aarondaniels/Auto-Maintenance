@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "schedules": [
+    {"file": "ford_bronco_gen6.json", "make": "ford", "model": "bronco", "years": [2021, 2026]},
+    {"file": "ford_f150_gen14.json", "make": "ford", "model": "f-150", "years": [2021, 2026]},
+    {"file": "jeep_wrangler_jk.json", "make": "jeep", "model": "wrangler", "years": [2007, 2018]},
+    {"file": "jeep_grand_cherokee_wk2.json", "make": "jeep", "model": "grand cherokee", "years": [2011, 2021]},
+    {"file": "toyota_rav4_xa50.json", "make": "toyota", "model": "rav4", "years": [2019, 2025]},
+    {"file": "honda_crv_gen5.json", "make": "honda", "model": "cr-v", "years": [2017, 2022]}
+  ]
+}

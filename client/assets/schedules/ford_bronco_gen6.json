@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "make": "ford",
+  "model": "bronco",
+  "generation": "6th gen",
+  "years": [2021, 2026],
+  "conditions": "normal",
+  "source": "Ford Bronco Owner's Manual, scheduled maintenance (normal conditions)",
+  "variants": [
+    {
+      "match": {},
+      "recurring": [
+        {"service_type": "oil change", "interval_miles": 10000, "interval_months": 12},
+        {"service_type": "tire rotation", "interval_miles": 10000},
+        {"service_type": "engine air filter", "interval_miles": 30000},
+        {"service_type": "cabin air filter", "interval_miles": 20000}
+      ],
+      "milestones": [
+        {"service_type": "spark plugs", "odometer": 100000},
+        {"service_type": "engine coolant", "odometer": 100000},
+        {"service_type": "transmission fluid", "odometer": 150000}
+      ]
+    }
+  ]
+}

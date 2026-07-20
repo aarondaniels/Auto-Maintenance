@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "make": "jeep",
+  "model": "grand cherokee",
+  "generation": "WK2",
+  "years": [2011, 2021],
+  "conditions": "normal",
+  "source": "Jeep Grand Cherokee (WK2) Owner's Manual, maintenance plan (normal conditions)",
+  "variants": [
+    {
+      "match": {},
+      "recurring": [
+        {"service_type": "oil change", "interval_miles": 10000, "interval_months": 12},
+        {"service_type": "tire rotation", "interval_miles": 10000},
+        {"service_type": "engine air filter", "interval_miles": 30000},
+        {"service_type": "cabin air filter", "interval_miles": 20000}
+      ],
+      "milestones": [
+        {"service_type": "spark plugs", "odometer": 100000},
+        {"service_type": "engine coolant", "odometer": 100000},
+        {"service_type": "transfer case fluid", "odometer": 120000}
+      ]
+    }
+  ]
+}

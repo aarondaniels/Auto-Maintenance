@@ -1,5 +1,18 @@
-/// Plain data models mirroring the FastAPI response schemas.
+/// Plain data models for on-device storage.
 library;
+
+/// Well-known service types offered in pickers. Free-form types are allowed
+/// anywhere a service type is stored (e.g. rules imported from a
+/// manufacturer schedule).
+const List<String> serviceTypes = [
+  'oil change',
+  'tires',
+  'brakes',
+  'filters',
+  'battery',
+  'inspection',
+  'other',
+];
 
 class Vehicle {
   final int id;
@@ -7,6 +20,11 @@ class Vehicle {
   final String? make;
   final String? model;
   final int? year;
+
+  /// Optional trim/engine spec (e.g. 'Badlands', '2.7L V6') used to match
+  /// variant-specific manufacturer schedules.
+  final String? trim;
+  final String? engine;
   final int? currentOdometer;
 
   Vehicle({
@@ -15,17 +33,54 @@ class Vehicle {
     this.make,
     this.model,
     this.year,
+    this.trim,
+    this.engine,
     this.currentOdometer,
   });
 
   factory Vehicle.fromJson(Map<String, dynamic> j) => Vehicle(
-        id: j['id'] as int,
-        label: j['label'] as String,
-        make: j['make'] as String?,
-        model: j['model'] as String?,
-        year: j['year'] as int?,
-        currentOdometer: j['current_odometer'] as int?,
-      );
+    id: j['id'] as int,
+    label: j['label'] as String,
+    make: j['make'] as String?,
+    model: j['model'] as String?,
+    year: j['year'] as int?,
+    trim: j['trim'] as String?,
+    engine: j['engine'] as String?,
+    currentOdometer: j['current_odometer'] as int?,
+  );
+
+  Vehicle copyWith({
+    int? id,
+    String? label,
+    String? make,
+    String? model,
+    int? year,
+    String? trim,
+    String? engine,
+    int? currentOdometer,
+  }) {
+    return Vehicle(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      make: make ?? this.make,
+      model: model ?? this.model,
+      year: year ?? this.year,
+      trim: trim ?? this.trim,
+      engine: engine ?? this.engine,
+      currentOdometer: currentOdometer ?? this.currentOdometer,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'label': label,
+    'make': make,
+    'model': model,
+    'year': year,
+    'trim': trim,
+    'engine': engine,
+    'current_odometer': currentOdometer,
+  };
 
   String get displayName {
     final parts = [
@@ -37,32 +92,9 @@ class Vehicle {
   }
 }
 
-class VehicleMember {
-  final int id;
-  final int vehicleId;
-  final int userId;
-  final String role;
-  final DateTime createdAt;
-
-  VehicleMember({
-    required this.id,
-    required this.vehicleId,
-    required this.userId,
-    required this.role,
-    required this.createdAt,
-  });
-
-  factory VehicleMember.fromJson(Map<String, dynamic> j) => VehicleMember(
-        id: j['id'] as int,
-        vehicleId: j['vehicle_id'] as int,
-        userId: j['user_id'] as int,
-        role: j['role'] as String,
-        createdAt: DateTime.parse(j['created_at'] as String),
-      );
-}
-
 class Fillup {
   final int id;
+  final int vehicleId;
   final DateTime date;
   final int odometer;
   final double gallons;
@@ -73,6 +105,7 @@ class Fillup {
 
   Fillup({
     required this.id,
+    required this.vehicleId,
     required this.date,
     required this.odometer,
     required this.gallons,
@@ -83,19 +116,33 @@ class Fillup {
   });
 
   factory Fillup.fromJson(Map<String, dynamic> j) => Fillup(
-        id: j['id'] as int,
-        date: DateTime.parse(j['date'] as String),
-        odometer: j['odometer'] as int,
-        gallons: (j['gallons'] as num).toDouble(),
-        priceTotal: (j['price_total'] as num?)?.toDouble(),
-        location: j['location'] as String?,
-        notes: j['notes'] as String?,
-        mpg: (j['mpg'] as num?)?.toDouble(),
-      );
+    id: j['id'] as int,
+    vehicleId: j['vehicle_id'] as int,
+    date: DateTime.parse(j['date'] as String),
+    odometer: j['odometer'] as int,
+    gallons: (j['gallons'] as num).toDouble(),
+    priceTotal: (j['price_total'] as num?)?.toDouble(),
+    location: j['location'] as String?,
+    notes: j['notes'] as String?,
+    mpg: (j['mpg'] as num?)?.toDouble(),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'vehicle_id': vehicleId,
+    'date': date.toIso8601String(),
+    'odometer': odometer,
+    'gallons': gallons,
+    'price_total': priceTotal,
+    'location': location,
+    'notes': notes,
+    'mpg': mpg,
+  };
 }
 
 class ServiceRecord {
   final int id;
+  final int vehicleId;
   final DateTime date;
   final int odometer;
   final String serviceType;
@@ -104,6 +151,7 @@ class ServiceRecord {
 
   ServiceRecord({
     required this.id,
+    required this.vehicleId,
     required this.date,
     required this.odometer,
     required this.serviceType,
@@ -112,48 +160,108 @@ class ServiceRecord {
   });
 
   factory ServiceRecord.fromJson(Map<String, dynamic> j) => ServiceRecord(
-        id: j['id'] as int,
-        date: DateTime.parse(j['date'] as String),
-        odometer: j['odometer'] as int,
-        serviceType: j['service_type'] as String,
-        cost: (j['cost'] as num?)?.toDouble(),
-        notes: j['notes'] as String?,
-      );
+    id: j['id'] as int,
+    vehicleId: j['vehicle_id'] as int,
+    date: DateTime.parse(j['date'] as String),
+    odometer: j['odometer'] as int,
+    serviceType: j['service_type'] as String,
+    cost: (j['cost'] as num?)?.toDouble(),
+    notes: j['notes'] as String?,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'vehicle_id': vehicleId,
+    'date': date.toIso8601String(),
+    'odometer': odometer,
+    'service_type': serviceType,
+    'cost': cost,
+    'notes': notes,
+  };
 }
 
-class ReminderStatus {
+/// A persisted reminder rule for one vehicle.
+///
+/// Recurring rules repeat every [intervalMiles] miles and/or
+/// [intervalMonths] months after the most recent matching service.
+/// Milestone rules come due once, at [dueOdometer].
+class ReminderRule {
+  final int id;
+  final int vehicleId;
   final String serviceType;
+  final String kind; // recurring | milestone
   final int? intervalMiles;
   final int? intervalMonths;
+  final int? dueOdometer;
+  final String source; // defaults | manufacturer | custom
+  final String? notes;
+
+  ReminderRule({
+    required this.id,
+    required this.vehicleId,
+    required this.serviceType,
+    required this.kind,
+    this.intervalMiles,
+    this.intervalMonths,
+    this.dueOdometer,
+    required this.source,
+    this.notes,
+  });
+
+  factory ReminderRule.fromJson(Map<String, dynamic> j) => ReminderRule(
+    id: j['id'] as int,
+    vehicleId: j['vehicle_id'] as int,
+    serviceType: j['service_type'] as String,
+    kind: j['kind'] as String,
+    intervalMiles: j['interval_miles'] as int?,
+    intervalMonths: j['interval_months'] as int?,
+    dueOdometer: j['due_odometer'] as int?,
+    source: j['source'] as String,
+    notes: j['notes'] as String?,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'vehicle_id': vehicleId,
+    'service_type': serviceType,
+    'kind': kind,
+    'interval_miles': intervalMiles,
+    'interval_months': intervalMonths,
+    'due_odometer': dueOdometer,
+    'source': source,
+    'notes': notes,
+  };
+}
+
+/// Computed due-state for one [ReminderRule].
+class ReminderStatus {
+  final int ruleId;
+  final String serviceType;
+  final String kind; // recurring | milestone
+  final String source; // defaults | manufacturer | custom
+  final int? intervalMiles;
+  final int? intervalMonths;
+  final int? dueOdometer;
   final DateTime? lastServiceDate;
   final int? lastServiceOdometer;
   final int? milesUntilDue;
   final int? daysUntilDue;
-  final String status; // ok | due_soon | overdue | unknown
+  final String status; // ok | due_soon | overdue | done | unknown
 
   ReminderStatus({
+    required this.ruleId,
     required this.serviceType,
+    required this.kind,
+    required this.source,
     this.intervalMiles,
     this.intervalMonths,
+    this.dueOdometer,
     this.lastServiceDate,
     this.lastServiceOdometer,
     this.milesUntilDue,
     this.daysUntilDue,
     required this.status,
   });
-
-  factory ReminderStatus.fromJson(Map<String, dynamic> j) => ReminderStatus(
-        serviceType: j['service_type'] as String,
-        intervalMiles: j['interval_miles'] as int?,
-        intervalMonths: j['interval_months'] as int?,
-        lastServiceDate: j['last_service_date'] != null
-            ? DateTime.parse(j['last_service_date'] as String)
-            : null,
-        lastServiceOdometer: j['last_service_odometer'] as int?,
-        milesUntilDue: j['miles_until_due'] as int?,
-        daysUntilDue: j['days_until_due'] as int?,
-        status: j['status'] as String,
-      );
 }
 
 class MpgPoint {
@@ -162,12 +270,6 @@ class MpgPoint {
   final double mpg;
 
   MpgPoint({required this.date, required this.odometer, required this.mpg});
-
-  factory MpgPoint.fromJson(Map<String, dynamic> j) => MpgPoint(
-        date: DateTime.parse(j['date'] as String),
-        odometer: j['odometer'] as int,
-        mpg: (j['mpg'] as num).toDouble(),
-      );
 }
 
 class MonthlySpend {
@@ -175,13 +277,11 @@ class MonthlySpend {
   final double fuel;
   final double service;
 
-  MonthlySpend({required this.month, required this.fuel, required this.service});
-
-  factory MonthlySpend.fromJson(Map<String, dynamic> j) => MonthlySpend(
-        month: j['month'] as String,
-        fuel: (j['fuel'] as num).toDouble(),
-        service: (j['service'] as num).toDouble(),
-      );
+  MonthlySpend({
+    required this.month,
+    required this.fuel,
+    required this.service,
+  });
 }
 
 class VehicleStats {
@@ -206,20 +306,4 @@ class VehicleStats {
     required this.mpgSeries,
     required this.monthlySpend,
   });
-
-  factory VehicleStats.fromJson(Map<String, dynamic> j) => VehicleStats(
-        totalFillups: j['total_fillups'] as int,
-        totalServices: j['total_services'] as int,
-        totalFuelCost: (j['total_fuel_cost'] as num).toDouble(),
-        totalServiceCost: (j['total_service_cost'] as num).toDouble(),
-        totalSpend: (j['total_spend'] as num).toDouble(),
-        avgMpg: (j['avg_mpg'] as num?)?.toDouble(),
-        costPerMile: (j['cost_per_mile'] as num?)?.toDouble(),
-        mpgSeries: (j['mpg_series'] as List)
-            .map((e) => MpgPoint.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        monthlySpend: (j['monthly_spend'] as List)
-            .map((e) => MonthlySpend.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
 }

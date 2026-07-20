@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "make": "jeep",
+  "model": "wrangler",
+  "generation": "JK",
+  "years": [2007, 2018],
+  "conditions": "normal",
+  "source": "Jeep Wrangler (JK) Owner's Manual, maintenance plan (normal conditions)",
+  "variants": [
+    {
+      "match": {},
+      "recurring": [
+        {"service_type": "oil change", "interval_miles": 8000, "interval_months": 12},
+        {"service_type": "tire rotation", "interval_miles": 8000},
+        {"service_type": "engine air filter", "interval_miles": 30000}
+      ],
+      "milestones": [
+        {"service_type": "spark plugs", "odometer": 100000},
+        {"service_type": "engine coolant", "odometer": 100000},
+        {"service_type": "transfer case fluid", "odometer": 120000}
+      ]
+    },
+    {
+      "match": {"engine": "3.8L"},
+      "recurring": [
+        {"service_type": "oil change", "interval_miles": 8000, "interval_months": 12},
+        {"service_type": "tire rotation", "interval_miles": 8000},
+        {"service_type": "engine air filter", "interval_miles": 30000}
+      ],
+      "milestones": [
+        {"service_type": "spark plugs", "odometer": 30000},
+        {"service_type": "engine coolant", "odometer": 100000},
+        {"service_type": "transfer case fluid", "odometer": 120000}
+      ]
+    }
+  ]
+}
