@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../providers.dart';
+import '../widgets/glass.dart';
 
 final _dateFmt = DateFormat('MMM d, yyyy');
 
@@ -21,16 +22,25 @@ class ServicesScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('$e')),
         data: (services) {
           if (services.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('No service records yet. Tap + to add one.'),
+                padding: EdgeInsets.only(
+                  top: glassTopInset(context),
+                  bottom: glassBottomInset(context),
+                  left: 24,
+                  right: 24,
+                ),
+                child: const Text('No service records yet. Tap + to add one.'),
               ),
             );
           }
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(servicesProvider(vehicle.id)),
             child: ListView.separated(
+              padding: EdgeInsets.only(
+                top: glassTopInset(context),
+                bottom: glassBottomInset(context),
+              ),
               itemCount: services.length,
               separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (_, i) {
@@ -68,17 +78,19 @@ class ServicesScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddSheet(context, ref),
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: glassBottomInset(context)),
+        child: GlassButton(
+          icon: const Icon(Icons.add),
+          onTap: () => _showAddSheet(context, ref),
+        ),
       ),
     );
   }
 
   void _showAddSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
+    GlassModalSheet.show<bool>(
       context: context,
-      isScrollControlled: true,
       builder: (_) => _AddServiceSheet(vehicle: vehicle),
     ).then((added) {
       if (added == true) {
@@ -160,26 +172,30 @@ class _AddServiceSheetState extends ConsumerState<_AddServiceSheet> {
           children: [
             Text('Add service', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            Builder(builder: (context) {
-              // Offer the standard types plus any types this vehicle's
-              // reminder rules use (e.g. imported manufacturer items).
-              final ruleTypes =
-                  ref
-                      .watch(reminderRulesProvider(widget.vehicle.id))
-                      .value
-                      ?.map((r) => r.serviceType.toLowerCase()) ??
-                  const Iterable<String>.empty();
-              final types = {...serviceTypes, ...ruleTypes}.toList();
-              return DropdownButtonFormField<String>(
-                initialValue: _type,
-                decoration: const InputDecoration(
-                    labelText: 'Service type', border: OutlineInputBorder()),
-                items: types
-                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                    .toList(),
-                onChanged: (v) => setState(() => _type = v ?? _type),
-              );
-            }),
+            Builder(
+              builder: (context) {
+                // Offer the standard types plus any types this vehicle's
+                // reminder rules use (e.g. imported manufacturer items).
+                final ruleTypes =
+                    ref
+                        .watch(reminderRulesProvider(widget.vehicle.id))
+                        .value
+                        ?.map((r) => r.serviceType.toLowerCase()) ??
+                    const Iterable<String>.empty();
+                final types = {...serviceTypes, ...ruleTypes}.toList();
+                return DropdownButtonFormField<String>(
+                  initialValue: _type,
+                  decoration: const InputDecoration(
+                    labelText: 'Service type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: types
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _type = v ?? _type),
+                );
+              },
+            ),
             const SizedBox(height: 12),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -199,7 +215,9 @@ class _AddServiceSheetState extends ConsumerState<_AddServiceSheet> {
               controller: _odometer,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  labelText: 'Odometer (mi)', border: OutlineInputBorder()),
+                labelText: 'Odometer (mi)',
+                border: OutlineInputBorder(),
+              ),
               validator: (v) => (v == null || int.tryParse(v.trim()) == null)
                   ? 'Enter miles'
                   : null,
@@ -207,16 +225,21 @@ class _AddServiceSheetState extends ConsumerState<_AddServiceSheet> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _cost,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: const InputDecoration(
-                  labelText: 'Cost (\$)', border: OutlineInputBorder()),
+                labelText: 'Cost (\$)',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _notes,
               decoration: const InputDecoration(
-                  labelText: 'Notes (optional)', border: OutlineInputBorder()),
+                labelText: 'Notes (optional)',
+                border: OutlineInputBorder(),
+              ),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -229,7 +252,8 @@ class _AddServiceSheetState extends ConsumerState<_AddServiceSheet> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Save'),
             ),
           ],

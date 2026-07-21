@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../providers.dart';
 import '../schedules.dart';
+import '../widgets/glass.dart';
 
 final _milesFmt = NumberFormat.decimalPattern();
 
@@ -52,7 +53,14 @@ class _ScheduleSyncScreenState extends ConsumerState<ScheduleSyncScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Manufacturer schedule')),
+      extendBodyBehindAppBar: true,
+      appBar: GlassAppBar(
+        title: const Text('Manufacturer schedule'),
+        leading: GlassIconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: FutureBuilder<MatchedSchedule?>(
         future: _lookup,
         builder: (context, snapshot) {
@@ -92,16 +100,23 @@ class _ScheduleSyncScreenState extends ConsumerState<ScheduleSyncScreen> {
             _selected.addAll(schedule.items);
           }
 
-          final recurring =
-              schedule.items.where((i) => i.kind == 'recurring').toList();
-          final milestones =
-              schedule.items.where((i) => i.kind == 'milestone').toList();
+          final recurring = schedule.items
+              .where((i) => i.kind == 'recurring')
+              .toList();
+          final milestones = schedule.items
+              .where((i) => i.kind == 'milestone')
+              .toList();
 
           return Column(
             children: [
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    glassTopInset(context) + 16,
+                    16,
+                    16,
+                  ),
                   children: [
                     Text(
                       'Found: ${schedule.title}',
@@ -160,7 +175,8 @@ class _ScheduleSyncScreenState extends ConsumerState<ScheduleSyncScreen> {
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : Text('Import ${_selected.length} reminders'),
                   ),
                 ),

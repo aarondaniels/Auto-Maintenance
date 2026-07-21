@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../providers.dart';
+import '../widgets/glass.dart';
 
 final _dateFmt = DateFormat('MMM d, yyyy');
 
@@ -21,11 +22,15 @@ class FillupsScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('$e')),
         data: (fillups) {
           if (fillups.isEmpty) {
-            return const _Empty(text: 'No fillups yet. Tap + to add one.');
+            return _Empty(text: 'No fillups yet. Tap + to add one.');
           }
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(fillupsProvider(vehicle.id)),
             child: ListView.separated(
+              padding: EdgeInsets.only(
+                top: glassTopInset(context),
+                bottom: glassBottomInset(context),
+              ),
               itemCount: fillups.length,
               separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (_, i) {
@@ -40,9 +45,7 @@ class FillupsScreen extends ConsumerWidget {
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   onDismissed: (_) async {
-                    await ref
-                        .read(apiProvider)
-                        .deleteFillup(vehicle.id, f.id);
+                    await ref.read(apiProvider).deleteFillup(vehicle.id, f.id);
                     ref.invalidate(fillupsProvider(vehicle.id));
                     ref.invalidate(statsProvider(vehicle.id));
                   },
@@ -66,17 +69,19 @@ class FillupsScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddSheet(context, ref),
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: glassBottomInset(context)),
+        child: GlassButton(
+          icon: const Icon(Icons.add),
+          onTap: () => _showAddSheet(context, ref),
+        ),
       ),
     );
   }
 
   void _showAddSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
+    GlassModalSheet.show<bool>(
       context: context,
-      isScrollControlled: true,
       builder: (_) => _AddFillupSheet(vehicle: vehicle),
     ).then((added) {
       if (added == true) {
@@ -156,8 +161,7 @@ class _AddFillupSheetState extends ConsumerState<_AddFillupSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Add fillup',
-                style: Theme.of(context).textTheme.titleLarge),
+            Text('Add fillup', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -177,19 +181,23 @@ class _AddFillupSheetState extends ConsumerState<_AddFillupSheet> {
               controller: _odometer,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  labelText: 'Odometer (mi)', border: OutlineInputBorder()),
-              validator: (v) =>
-                  (v == null || int.tryParse(v.trim()) == null)
-                      ? 'Enter miles'
-                      : null,
+                labelText: 'Odometer (mi)',
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) => (v == null || int.tryParse(v.trim()) == null)
+                  ? 'Enter miles'
+                  : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _gallons,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: const InputDecoration(
-                  labelText: 'Gallons', border: OutlineInputBorder()),
+                labelText: 'Gallons',
+                border: OutlineInputBorder(),
+              ),
               validator: (v) {
                 final d = double.tryParse((v ?? '').trim());
                 return (d == null || d <= 0) ? 'Enter gallons' : null;
@@ -198,17 +206,21 @@ class _AddFillupSheetState extends ConsumerState<_AddFillupSheet> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _price,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: const InputDecoration(
-                  labelText: 'Total price (\$)', border: OutlineInputBorder()),
+                labelText: 'Total price (\$)',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _location,
               decoration: const InputDecoration(
-                  labelText: 'Location (optional)',
-                  border: OutlineInputBorder()),
+                labelText: 'Location (optional)',
+                border: OutlineInputBorder(),
+              ),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -221,7 +233,8 @@ class _AddFillupSheetState extends ConsumerState<_AddFillupSheet> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Save'),
             ),
           ],
@@ -235,6 +248,15 @@ class _Empty extends StatelessWidget {
   const _Empty({required this.text});
   final String text;
   @override
-  Widget build(BuildContext context) =>
-      Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(text)));
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: EdgeInsets.only(
+        top: glassTopInset(context),
+        bottom: glassBottomInset(context),
+        left: 24,
+        right: 24,
+      ),
+      child: Text(text),
+    ),
+  );
 }

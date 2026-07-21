@@ -108,24 +108,23 @@ class ApiClient {
     return file;
   }
 
-  Future<Vehicle> createVehicle(Map<String, dynamic> body) =>
-      _mutate(() async {
-        final data = await _load();
-        final vehicle = Vehicle(
-          id: data.nextVehicleId++,
-          label: body['label'] as String,
-          make: body['make'] as String?,
-          model: body['model'] as String?,
-          year: body['year'] as int?,
-          trim: body['trim'] as String?,
-          engine: body['engine'] as String?,
-          currentOdometer: body['current_odometer'] as int?,
-        );
-        data.vehicles.add(vehicle);
-        _seedDefaultRules(data, vehicle.id);
-        await _persist();
-        return vehicle;
-      });
+  Future<Vehicle> createVehicle(Map<String, dynamic> body) => _mutate(() async {
+    final data = await _load();
+    final vehicle = Vehicle(
+      id: data.nextVehicleId++,
+      label: body['label'] as String,
+      make: body['make'] as String?,
+      model: body['model'] as String?,
+      year: body['year'] as int?,
+      trim: body['trim'] as String?,
+      engine: body['engine'] as String?,
+      currentOdometer: body['current_odometer'] as int?,
+    );
+    data.vehicles.add(vehicle);
+    _seedDefaultRules(data, vehicle.id);
+    await _persist();
+    return vehicle;
+  });
 
   Future<void> deleteVehicle(int id) => _mutate(() async {
     final data = await _load();
@@ -192,14 +191,13 @@ class ApiClient {
         await _persist();
       });
 
-  Future<void> deleteService(int vehicleId, int serviceId) =>
-      _mutate(() async {
-        final data = await _load();
-        data.services.removeWhere(
-          (s) => s.id == serviceId && s.vehicleId == vehicleId,
-        );
-        await _persist();
-      });
+  Future<void> deleteService(int vehicleId, int serviceId) => _mutate(() async {
+    final data = await _load();
+    data.services.removeWhere(
+      (s) => s.id == serviceId && s.vehicleId == vehicleId,
+    );
+    await _persist();
+  });
 
   Future<List<ReminderRule>> listReminderRules(int vehicleId) async {
     final data = await _load();
@@ -313,7 +311,8 @@ class ApiClient {
     final now = DateTime.now();
     return [
       for (final rule in data.reminderRules)
-        if (rule.vehicleId == vehicleId) _statusForRule(rule, data, vehicle, now),
+        if (rule.vehicleId == vehicleId)
+          _statusForRule(rule, data, vehicle, now),
     ];
   }
 
@@ -426,8 +425,7 @@ class ApiClient {
             .where(
               (s) =>
                   s.vehicleId == rule.vehicleId &&
-                  s.serviceType.toLowerCase() ==
-                      rule.serviceType.toLowerCase(),
+                  s.serviceType.toLowerCase() == rule.serviceType.toLowerCase(),
             )
             .toList()
           ..sort((a, b) => b.odometer.compareTo(a.odometer));

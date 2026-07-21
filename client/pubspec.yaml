@@ -39,6 +39,7 @@ dependencies:
   fl_chart: ^1.2.0
   path_provider: ^2.0.15
   share_plus: ^13.2.1
+  liquid_glass_widgets: ^0.18.4
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +51,15 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+# App icon generation: `dart run flutter_launcher_icons` after changing
+# assets/icon/app_icon.png (rendered from app_icon.svg via rsvg-convert).
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  remove_alpha_ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../providers.dart';
+import '../widgets/glass.dart';
 import 'schedule_sync_screen.dart';
 
 final _dateFmt = DateFormat('MMM d, yyyy');
@@ -30,10 +31,13 @@ class RemindersScreen extends ConsumerWidget {
         });
   }
 
-  void _showRuleSheet(BuildContext context, WidgetRef ref, {ReminderStatus? existing}) {
-    showModalBottomSheet(
+  void _showRuleSheet(
+    BuildContext context,
+    WidgetRef ref, {
+    ReminderStatus? existing,
+  }) {
+    GlassModalSheet.show<bool>(
       context: context,
-      isScrollControlled: true,
       builder: (_) => _RuleSheet(vehicle: vehicle, existing: existing),
     ).then((changed) {
       if (changed == true) _invalidate(ref);
@@ -62,7 +66,12 @@ class RemindersScreen extends ConsumerWidget {
           );
           if (reminders.isEmpty) {
             return ListView(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.fromLTRB(
+                8,
+                glassTopInset(context) + 8,
+                8,
+                glassBottomInset(context) + 8,
+              ),
               children: [
                 syncTile,
                 const Padding(
@@ -77,7 +86,12 @@ class RemindersScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => _invalidate(ref),
             child: ListView.separated(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.fromLTRB(
+                8,
+                glassTopInset(context) + 8,
+                8,
+                glassBottomInset(context) + 8,
+              ),
               itemCount: reminders.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: 4),
               itemBuilder: (_, i) {
@@ -108,9 +122,12 @@ class RemindersScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showRuleSheet(context, ref),
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: glassBottomInset(context)),
+        child: GlassButton(
+          icon: const Icon(Icons.add),
+          onTap: () => _showRuleSheet(context, ref),
+        ),
       ),
     );
   }
@@ -132,11 +149,7 @@ class _ReminderCard extends StatelessWidget {
       case 'done':
         return (color: Colors.teal, icon: Icons.task_alt, label: 'Done');
       default:
-        return (
-          color: Colors.grey,
-          icon: Icons.help_outline,
-          label: 'No data'
-        );
+        return (color: Colors.grey, icon: Icons.help_outline, label: 'No data');
     }
   }
 
@@ -176,12 +189,14 @@ class _ReminderCard extends StatelessWidget {
         onTap: onTap,
         leading: Icon(s.icon, color: s.color),
         title: Text(r.serviceType),
-        subtitle: Text([
-          [if (details.isNotEmpty) details, _sourceLabel].join(' · '),
-          if (r.lastServiceDate != null)
-            'last: ${_dateFmt.format(r.lastServiceDate!)} @ ${r.lastServiceOdometer} mi',
-          if (remaining.isNotEmpty) remaining,
-        ].join('\n')),
+        subtitle: Text(
+          [
+            [if (details.isNotEmpty) details, _sourceLabel].join(' · '),
+            if (r.lastServiceDate != null)
+              'last: ${_dateFmt.format(r.lastServiceDate!)} @ ${r.lastServiceOdometer} mi',
+            if (remaining.isNotEmpty) remaining,
+          ].join('\n'),
+        ),
         isThreeLine: true,
         trailing: Chip(
           label: Text(s.label, style: TextStyle(color: s.color)),
@@ -335,8 +350,7 @@ class _RuleSheetState extends ConsumerState<_RuleSheet> {
                   labelText: 'Due at odometer (mi)',
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) =>
-                    (v == null || int.tryParse(v.trim()) == null)
+                validator: (v) => (v == null || int.tryParse(v.trim()) == null)
                     ? 'Enter miles'
                     : null,
               ),
@@ -351,7 +365,8 @@ class _RuleSheetState extends ConsumerState<_RuleSheet> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Save'),
             ),
           ],

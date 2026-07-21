@@ -4,11 +4,19 @@ import 'package:share_plus/share_plus.dart';
 
 import '../models.dart';
 import '../providers.dart';
+import '../widgets/glass.dart';
 import 'fillups_screen.dart';
 import 'reminders_screen.dart';
 import 'services_screen.dart';
 import 'stats_screen.dart';
 import 'vehicle_form.dart';
+
+const _tabs = <GlassTab>[
+  GlassTab(icon: Icon(Icons.local_gas_station), label: 'Fillups'),
+  GlassTab(icon: Icon(Icons.build), label: 'Service'),
+  GlassTab(icon: Icon(Icons.notifications), label: 'Reminders'),
+  GlassTab(icon: Icon(Icons.insights), label: 'Stats'),
+];
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -40,7 +48,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
-        appBar: AppBar(title: const Text('Auto Maintenance')),
+        appBar: const GlassAppBar(title: Text('Auto Maintenance')),
         body: _ErrorView(
           message: '$e',
           onRetry: () => ref.invalidate(vehiclesProvider),
@@ -68,16 +76,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ];
 
         return Scaffold(
-          appBar: AppBar(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          appBar: GlassAppBar(
             title: _VehicleSelector(vehicles: vehicles, selected: vehicle),
             actions: [
-              IconButton(
-                tooltip: 'Export data',
+              GlassIconButton(
                 icon: const Icon(Icons.ios_share),
                 onPressed: () => _exportData(context),
               ),
-              IconButton(
-                tooltip: 'Add vehicle',
+              GlassIconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () async {
                   final added = await Navigator.of(context).push<bool>(
@@ -89,21 +97,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
           body: pages[_tab],
-          bottomNavigationBar: NavigationBar(
+          bottomNavigationBar: GlassTabBar.bottom(
+            tabs: _tabs,
             selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.local_gas_station),
-                label: 'Fillups',
-              ),
-              NavigationDestination(icon: Icon(Icons.build), label: 'Service'),
-              NavigationDestination(
-                icon: Icon(Icons.notifications),
-                label: 'Reminders',
-              ),
-              NavigationDestination(icon: Icon(Icons.insights), label: 'Stats'),
-            ],
+            onTabSelected: (i) => setState(() => _tab = i),
           ),
         );
       },
@@ -145,7 +142,7 @@ class _NoVehiclesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Welcome')),
+      appBar: const GlassAppBar(title: Text('Welcome')),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

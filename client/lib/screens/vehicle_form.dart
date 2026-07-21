@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers.dart';
+import '../widgets/glass.dart';
 
 /// Modal screen to create a new vehicle. Pops `true` when one is created.
 class VehicleForm extends ConsumerStatefulWidget {
@@ -46,7 +47,8 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
         'label': _label.text.trim(),
         if (_make.text.trim().isNotEmpty) 'make': _make.text.trim(),
         if (_model.text.trim().isNotEmpty) 'model': _model.text.trim(),
-        if (_year.text.trim().isNotEmpty) 'year': int.tryParse(_year.text.trim()),
+        if (_year.text.trim().isNotEmpty)
+          'year': int.tryParse(_year.text.trim()),
         if (_trim.text.trim().isNotEmpty) 'trim': _trim.text.trim(),
         if (_engine.text.trim().isNotEmpty) 'engine': _engine.text.trim(),
         if (_odometer.text.trim().isNotEmpty)
@@ -63,11 +65,18 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add vehicle')),
+      extendBodyBehindAppBar: true,
+      appBar: GlassAppBar(
+        title: const Text('Add vehicle'),
+        leading: GlassIconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(16, glassTopInset(context) + 16, 16, 16),
           children: [
             TextFormField(
               controller: _label,
@@ -82,20 +91,26 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
             TextFormField(
               controller: _make,
               decoration: const InputDecoration(
-                  labelText: 'Make', border: OutlineInputBorder()),
+                labelText: 'Make',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _model,
               decoration: const InputDecoration(
-                  labelText: 'Model', border: OutlineInputBorder()),
+                labelText: 'Model',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _year,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  labelText: 'Year', border: OutlineInputBorder()),
+                labelText: 'Year',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -133,7 +148,8 @@ class _VehicleFormState extends ConsumerState<VehicleForm> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Save vehicle'),
             ),
           ],
