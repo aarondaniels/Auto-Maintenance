@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Flat fallback icon (Android + pre-iOS-26). Kept flat per Liquid
+       Glass guidance: the system applies its own lighting effects.
+       Layers for the iOS 26 .icon live in icon_background.svg /
+       icon_glyph.svg. -->
+  <defs>
+    <mask id="cut">
+      <rect width="1024" height="1024" fill="#FFFFFF"/>
+      <path d="M340 452 C365 385 430 362 498 360 L498 452 Z" fill="#000000"/>
+      <path d="M534 360 C610 365 655 400 682 452 L534 452 Z" fill="#000000"/>
+      <circle cx="360" cy="620" r="38" fill="#000000"/>
+      <circle cx="664" cy="620" r="38" fill="#000000"/>
+      <circle cx="270" cy="780" r="24" fill="#000000"/>
+      <rect x="726" y="736" width="64" height="88" rx="10" fill="#000000"
+            transform="rotate(-45 758 780)"/>
+    </mask>
+  </defs>
+
+  <rect width="1024" height="1024" fill="#00897B"/>
+
+  <g fill="#FFFFFF" mask="url(#cut)">
+    <rect x="200" y="460" width="624" height="160" rx="70"/>
+    <path d="M300 470 C330 360 420 330 512 330 C620 330 690 380 724 470 Z"/>
+    <circle cx="360" cy="620" r="86"/>
+    <circle cx="664" cy="620" r="86"/>
+    <circle cx="270" cy="780" r="52"/>
+    <rect x="280" y="758" width="390" height="44" rx="22"/>
+    <circle cx="720" cy="780" r="70"/>
+  </g>
+</svg>

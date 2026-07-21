@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Background layer for Liquid Glass: flat teal. The system supplies
+       lighting, specular, and depth — no baked gradients. -->
+  <rect width="1024" height="1024" fill="#00897B"/>
+</svg>

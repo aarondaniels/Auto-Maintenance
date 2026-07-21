@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Foreground layer for Liquid Glass: white glyph on transparency.
+       Details (windows, hubs, wrench holes) are true cutouts via mask so
+       the system-rendered background shows through. -->
+  <defs>
+    <mask id="cut">
+      <rect width="1024" height="1024" fill="#FFFFFF"/>
+      <!-- windows -->
+      <path d="M340 452 C365 385 430 362 498 360 L498 452 Z" fill="#000000"/>
+      <path d="M534 360 C610 365 655 400 682 452 L534 452 Z" fill="#000000"/>
+      <!-- wheel hubs -->
+      <circle cx="360" cy="620" r="38" fill="#000000"/>
+      <circle cx="664" cy="620" r="38" fill="#000000"/>
+      <!-- wrench ring hole -->
+      <circle cx="270" cy="780" r="24" fill="#000000"/>
+      <!-- wrench jaw notch -->
+      <rect x="726" y="736" width="64" height="88" rx="10" fill="#000000"
+            transform="rotate(-45 758 780)"/>
+    </mask>
+  </defs>
+
+  <g fill="#FFFFFF" mask="url(#cut)">
+    <!-- car body -->
+    <rect x="200" y="460" width="624" height="160" rx="70"/>
+    <!-- cabin -->
+    <path d="M300 470 C330 360 420 330 512 330 C620 330 690 380 724 470 Z"/>
+    <!-- wheels -->
+    <circle cx="360" cy="620" r="86"/>
+    <circle cx="664" cy="620" r="86"/>
+    <!-- wrench: ring end, handle, open-end head -->
+    <circle cx="270" cy="780" r="52"/>
+    <rect x="280" y="758" width="390" height="44" rx="22"/>
+    <circle cx="720" cy="780" r="70"/>
+  </g>
+</svg>
